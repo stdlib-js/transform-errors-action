@@ -7,7 +7,7 @@ const msg2id = require( '@stdlib/error-tools-msg2id' );
 
 // VARIABLES //
 
-const pkg = '@stdlib/' + github.context.repo.repo;
+const pkg = '@stdlib/' + github.context.payload.repository.name;
 console.log( 'Context: ');
 console.log( JSON.stringify( github.context ) );
 const id = pkg2id( pkg );
