@@ -8,8 +8,6 @@ const msg2id = require( '@stdlib/error-tools-msg2id' );
 // VARIABLES //
 
 const pkg = '@stdlib/' + github.context.payload.repository.name;
-console.log( 'Context: ');
-console.log( JSON.stringify( github.context ) );
 const id = pkg2id( pkg );
 console.log( 'Package identifier: %s', id );
 
@@ -17,6 +15,7 @@ console.log( 'Package identifier: %s', id );
 // MAIN //
 
 function transformer( fileInfo, api ) {
+	console.log( 'File: %s', fileInfo.path );
 	return api
 		.jscodeshift( fileInfo.source )
 		.find( api.jscodeshift.StringLiteral )
