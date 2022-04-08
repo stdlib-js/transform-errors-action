@@ -77,36 +77,29 @@ function transformer( fileInfo, api ) {
 						return node.value.callee.name === 'require' &&
 							node.value.arguments[ 0 ].value === '@stdlib/error-tools-fmtprodmsg';
 					} ) ) {
-						console.log( 'Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...' );
-						const requires = api.jscodeshift( fileInfo.source )
-							.find( api.jscodeshift.CallExpression, {
-								callee: {
-									name: 'require',
-									type: 'Identifier'
-								}
-							});
-						console.log( 'Number of existing requires: %d', requires.size() );
-						if ( requires.size() > 0 ) {
-							requires.insertAfter( api.jscodeshift.callExpression(
-									api.jscodeshift.identifier( 'require' ),
-									[
-										api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
-									]
-								) );
-						} else {
-							// Add `require` call after `'use strict'`...
-							const strict = api.jscodeshift( fileInfo.source )
-								.find( api.jscodeshift.Literal, {
-									value: 'use strict'
-								});
-							if ( strict.size() > 0 ) {
-								strict.insertAfter( api.jscodeshift.callExpression(
+						const formatRequire = api.jscodeshift.variableDeclaration(
+							'var',
+							[
+								api.jscodeshift.variableDeclarator(
+									api.jscodeshift.identifier( 'format' ),
+									api.jscodeshift.callExpression(
 										api.jscodeshift.identifier( 'require' ),
 										[
 											api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
 										]
-									) );
-							}
+									)
+								)
+							]
+						);
+						console.log( 'Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...' );
+						if ( requires.size() > 0 ) {
+							requires.insertAfter( formatRequire );
+						} else {
+							// Add `var format = require( '@stdlib/error-tools-fmtprodmsg' );` as first element of `body`...
+							api.jscodeshift( fileInfo.source )
+								.find( api.jscodeshift.Program )
+								.get( 'body', 0 )
+								.insertAfter( formatRequire );
 						}
 					}
 				}
