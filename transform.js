@@ -33,20 +33,44 @@ function transformer( fileInfo, api ) {
 				api.jscodeshift( node )
 				.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
 			} 
-			// If the string literal is inside a NewExpression for an error, replace the string literal with the error message.
+			// If the string literal is inside a NewExpression for an error, replace the string literal with the error message...
 			else if ( 
-				node.parent.parent.value.type === 'NewExpression' &&
-				ERROR_NAMES.includes( node.parent.parent.value.callee.name )
+				// Case: new Error( format( '...', ... ) )
+				( node.parent.parent.value.type === 'NewExpression' &&
+				ERROR_NAMES.includes( node.parent.parent.value.callee.name ) )
+			) {
+				const id = msg2id( node.value.value );
+				if ( id ) {
+					const code = prefix + id;
+					console.log( 'Replacing format string "'+node.value.value+'" with error code "'+code+'"...' );
+					api.jscodeshift( node )
+						.replaceWith( api.jscodeshift.stringLiteral( code ) );
+				}
+			} 
+			else if (
+				// Case: new Error( '...' )
+				( node.parent.value.type === 'NewExpression' &&
+				ERROR_NAMES.includes( node.parent.value.callee.name ) )
 			) {
 				const id = msg2id( node.value.value );
 				if ( id ) {
 					const code = prefix + id;
 					console.log( 'Replacing string literal "'+node.value.value+'" with error code "'+code+'"...' );
-					api.jscodeshift( node )
-						.replaceWith( api.jscodeshift.stringLiteral( code ) );
+					
+					// Replace with call to `format` with the error code...
+					const replacement = api.jscodeshift.callExpression(
+						api.jscodeshift.memberExpression(
+							api.jscodeshift.identifier( 'format' ),
+							api.jscodeshift.identifier( 'bind' )
+						),
+						[
+							api.jscodeshift.stringLiteral( code ),
+							api.jscodeshift.identifier( 'this' )
+						]
+					);
+					api.jscodeshift( node ).replaceWith( replacement );
 				}
 			}
-
 		})
 		.toSource();
 }
