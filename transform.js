@@ -59,7 +59,7 @@ function transformer( fileInfo, api ) {
 					
 					// Replace with call to `format` with the error code...
 					const replacement = api.jscodeshift.callExpression(
-						app.jscodeshift.identifier( 'format' ),
+						api.jscodeshift.identifier( 'format' ),
 						[
 							api.jscodeshift.stringLiteral( code )
 						]
