@@ -8,7 +8,8 @@ const msg2id = require( '@stdlib/error-tools-msg2id' );
 // VARIABLES //
 
 const pkg = '@stdlib/' + github.context.repo.repo;
-console.log( 'Context: '+github.context );
+console.log( 'Context: ');
+console.log( JSON.stringify( github.context ) );
 const id = pkg2id( pkg );
 console.log( 'Package identifier: %s', id );
 
