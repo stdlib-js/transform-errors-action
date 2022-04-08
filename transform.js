@@ -15,14 +15,14 @@ console.log( 'Package identifier: %s', id );
 // MAIN //
 
 function transformer( fileInfo, api ) {
-	console.log( 'File: %s', fileInfo.path );
+	console.log( 'Transforming file: %s', fileInfo.path );
 	return api
 		.jscodeshift( fileInfo.source )
-		.find( api.jscodeshift.StringLiteral )
-		.forEach( function onString( path ) {
-			console.log( 'String: '+path );
-			if ( path.value.name === '@stdlib/string-format' ) {
-				api.jscodeshift( path )
+		.find( api.jscodeshift.String )
+		.forEach( function onString( node ) {
+			console.log( 'String: '+node );
+			if ( node.value === '@stdlib/string-format' ) {
+				api.jscodeshift( node )
 					.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
 			}
 		})

@@ -23,6 +23,7 @@ name: test
 # Workflow triggers:
 on:
   workflow_dispatch:
+  push:
 
 # Workflow jobs:
 jobs:
