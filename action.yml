@@ -11,7 +11,7 @@ runs:
       shell: bash
     - name: Transform all *.js files with jscodeshift
       run: |
-        jscodeshift ./lib/**/*.js -t ${{ github.action_path }}/transform.js
+        jscodeshift ./lib/**.js -t ${{ github.action_path }}/transform.js
       shell: bash
 
 branding:
