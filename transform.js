@@ -23,15 +23,17 @@ const ERROR_NAMES = [
 // MAIN //
 
 function transformer( fileInfo, api ) {
+	const j = api.jscodeshift;
+	const root = j( fileInfo.source );
+
 	console.log( 'Transforming file: %s', fileInfo.path );
-	return api
-		.jscodeshift( fileInfo.source )
-		.find( api.jscodeshift.Literal )
+	return root
+		.find( j.Literal )
 		.forEach( function onStringLiteral( node ) {
 			if ( node.value.value === '@stdlib/string-format' ) {
 				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
-				api.jscodeshift( node )
-				.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
+				j( node )
+				.replaceWith( j.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
 			} 
 			// If the string literal is inside a NewExpression for an error, replace the string literal with the error message...
 			else if ( 
@@ -43,8 +45,8 @@ function transformer( fileInfo, api ) {
 				if ( id ) {
 					const code = prefix + id;
 					console.log( 'Replacing format string "'+node.value.value+'" with error code "'+code+'"...' );
-					api.jscodeshift( node )
-						.replaceWith( api.jscodeshift.stringLiteral( code ) );
+					j( node )
+						.replaceWith( j.stringLiteral( code ) );
 				}
 			} 
 			else if (
@@ -58,16 +60,16 @@ function transformer( fileInfo, api ) {
 					console.log( 'Replacing string literal "'+node.value.value+'" with error code "'+code+'"...' );
 					
 					// Replace with call to `format` with the error code...
-					const replacement = api.jscodeshift.callExpression(
-						api.jscodeshift.identifier( 'format' ),
+					const replacement = j.callExpression(
+						j.identifier( 'format' ),
 						[
-							api.jscodeshift.stringLiteral( code )
+							j.stringLiteral( code )
 						]
 					);
-					api.jscodeshift( node ).replaceWith( replacement );
+					j( node ).replaceWith( replacement );
 
 					// Add `require` call to `@stdlib/error-tools-fmtprodmsg` if not already present...
-					const requires = api.jscodeshift( fileInfo.source ).find( api.jscodeshift.CallExpression, {
+					const requires = root.find( j.CallExpression, {
 						callee: {
 							name: 'require',
 							type: 'Identifier'
@@ -79,31 +81,22 @@ function transformer( fileInfo, api ) {
 						return node.value.callee.name === 'require' &&
 							node.value.arguments[ 0 ].value === '@stdlib/error-tools-fmtprodmsg';
 					} ) ) {
-						const formatRequire = api.jscodeshift.variableDeclaration(
+						const formatRequire = j.variableDeclaration(
 							'var',
 							[
-								api.jscodeshift.variableDeclarator(
-									api.jscodeshift.identifier( 'format' ),
-									api.jscodeshift.callExpression(
-										api.jscodeshift.identifier( 'require' ),
+								j.variableDeclarator(
+									j.identifier( 'format' ),
+									j.callExpression(
+										j.identifier( 'require' ),
 										[
-											api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
+											j.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
 										]
 									)
 								)
 							]
 						);
 						console.log( 'Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...' );
-						
-						// Add `var format = require( '@stdlib/error-tools-fmtprodmsg' );` as first element of `body`...
-						api.jscodeshift( fileInfo.source )
-							.find( api.jscodeshift.ExpressionStatement, {
-								expression: {
-									type: 'Literal',
-									value: 'use strict'
-								}
-							})
-							.insertAfter( formatRequire );
+						j( root.find( j.Declaration ).at( 0 ).get() ).insertBefore( formatRequire );
 					}
 				}
 			}
