@@ -34,17 +34,14 @@ function transformer( fileInfo, api ) {
 				.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
 			} 
 			// If the string literal is inside a NewExpression for an error, replace the string literal with the error message.
-			console.log( 'Ancestors: ' );
-			console.log( node.parent.value );
-			console.log( node.parent.parent.value );
-			if ( 
+			else if ( 
 				node.parent.parent.value.type === 'NewExpression' &&
 				ERROR_NAMES.includes( node.parent.parent.value.callee.name )
 			) {
-				console.log( 'Replacing string literal with error code...' );
 				const id = msg2id( node.value.value );
 				if ( id ) {
 					const code = prefix + id;
+					console.log( 'Replacing string literal "'+node.value.value+'" with error code "'+code+'"...' );
 					api.jscodeshift( node )
 						.replaceWith( api.jscodeshift.stringLiteral( code ) );
 				}
