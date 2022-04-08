@@ -8,10 +8,13 @@ runs:
   using: "composite"
   steps:
     - name: Install `jscodeshift` via npm
-      run: npm install -g jscodeshift
+      run: |
+        npm install -g jscodeshift
+      shell: bash
     - name: Transform all *.js files with jscodeshift
       run: |
         jscodeshift ./**/*.js -t {{ github.action_path }}/transform.js -p
+      shell: bash
 
 branding:
   icon: send
