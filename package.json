@@ -1,0 +1,21 @@
+{
+  "name": "transform-errors-action",
+  "version": "0.0.0",
+  "description": "GitHub action to transform full-length error messages to shortened error messages for production.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stdlib-js/transform-errors-action.git"
+  },
+  "author": {
+    "name": "Philipp Burckhardt",
+    "url": "pburckhardt@outlook.com"
+  },
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/stdlib-js/transform-errors-action/issues"
+  },
+  "homepage": "https://github.com/stdlib-js/transform-errors-action#readme",
+  "dependencies": {}
+}
