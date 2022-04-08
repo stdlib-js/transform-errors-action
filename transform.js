@@ -86,9 +86,7 @@ function transformer( fileInfo, api ) {
 								}
 							})
 							.insertAfter( api.jscodeshift.callExpression(
-								api.jscodeshift.memberExpression(
-									api.jscodeshift.identifier( 'require' )
-								),
+								api.jscodeshift.identifier( 'require' ),
 								[
 									api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
 								]
