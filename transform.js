@@ -60,15 +60,42 @@ function transformer( fileInfo, api ) {
 					// Replace with call to `format` with the error code...
 					const replacement = api.jscodeshift.callExpression(
 						api.jscodeshift.memberExpression(
-							api.jscodeshift.identifier( 'format' ),
-							api.jscodeshift.identifier( 'bind' )
+							api.jscodeshift.identifier( 'format' )
 						),
 						[
-							api.jscodeshift.stringLiteral( code ),
-							api.jscodeshift.identifier( 'this' )
+							api.jscodeshift.stringLiteral( code )
 						]
 					);
 					api.jscodeshift( node ).replaceWith( replacement );
+
+					// Add `require` call to `@stdlib/error-tools-fmtprodmsg` if not already present...
+					const requires = api.jscodeshift( fileInfo.source ).find( api.jscodeshift.CallExpression, {
+						callee: {
+							name: 'require',
+							type: 'Identifier'
+						}
+					});
+					if ( !requires.some( function hasRequire( node ) {
+						return node.value.callee.name === 'require' &&
+							node.value.arguments[ 0 ].value === '@stdlib/error-tools-fmtprodmsg';
+					} ) ) {
+						console.log( 'Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...' );
+						api.jscodeshift( fileInfo.source )
+							.find( api.jscodeshift.CallExpression, {
+								callee: {
+									name: 'require',
+									type: 'Identifier'
+								}
+							})
+							.insertAfter( api.jscodeshift.callExpression(
+								api.jscodeshift.memberExpression(
+									api.jscodeshift.identifier( 'require' )
+								),
+								[
+									api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
+								]
+							) );
+					}
 				}
 			}
 		})
