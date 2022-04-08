@@ -94,15 +94,19 @@ function transformer( fileInfo, api ) {
 									]
 								) );
 						} else {
-							api.jscodeshift( fileInfo.source )
-								.find( api.jscodeshift.Program )
-								.get( 0 )
-								.insertBefore( api.jscodeshift.callExpression(
-									api.jscodeshift.identifier( 'require' ),
-									[
-										api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
-									]
-								) );
+							// Add `require` call after `'use strict'`...
+							const strict = api.jscodeshift( fileInfo.source )
+								.find( api.jscodeshift.Literal, {
+									value: 'use strict'
+								});
+							if ( strict.size() > 0 ) {
+								strict.insertAfter( api.jscodeshift.callExpression(
+										api.jscodeshift.identifier( 'require' ),
+										[
+											api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
+										]
+									) );
+							}
 						}
 					}
 				}
