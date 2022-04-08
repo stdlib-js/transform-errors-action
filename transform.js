@@ -73,6 +73,8 @@ function transformer( fileInfo, api ) {
 							type: 'Identifier'
 						}
 					});
+					const nRequires = requires.size();
+					console.log( 'Found ' + nRequires + ' `require` calls...' );
 					if ( !requires.some( function hasRequire( node ) {
 						return node.value.callee.name === 'require' &&
 							node.value.arguments[ 0 ].value === '@stdlib/error-tools-fmtprodmsg';
@@ -92,15 +94,12 @@ function transformer( fileInfo, api ) {
 							]
 						);
 						console.log( 'Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...' );
-						if ( requires.size() > 0 ) {
-							requires.insertAfter( formatRequire );
-						} else {
-							// Add `var format = require( '@stdlib/error-tools-fmtprodmsg' );` as first element of `body`...
-							api.jscodeshift( fileInfo.source )
-								.find( api.jscodeshift.Program )
-								.get( 'body', 0 )
-								.insertAfter( formatRequire );
-						}
+						
+						// Add `var format = require( '@stdlib/error-tools-fmtprodmsg' );` as first element of `body`...
+						api.jscodeshift( fileInfo.source )
+							.find( api.jscodeshift.Program )
+							.get( 'body', 0 )
+							.insertAfter( formatRequire );
 					}
 				}
 			}
