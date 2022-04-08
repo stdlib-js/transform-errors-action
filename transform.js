@@ -24,12 +24,10 @@ const ERROR_NAMES = [
 
 function transformer( fileInfo, api ) {
 	console.log( 'Transforming file: %s', fileInfo.path );
-	console.log( api.jscodeshift.stringLiteral );
 	return api
 		.jscodeshift( fileInfo.source )
 		.find( api.jscodeshift.Literal )
 		.forEach( function onStringLiteral( node ) {
-			console.log( node.parent );
 			if ( node.value.value === '@stdlib/string-format' ) {
 				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
 				api.jscodeshift( node )
@@ -44,9 +42,12 @@ function transformer( fileInfo, api ) {
 				ERROR_NAMES.includes( node.parent.parent.value.callee.name )
 			) {
 				console.log( 'Replacing string literal with error code...' );
-				const code = prefix + msg2id( node.value.value );
-				api.jscodeshift( node )
-					.replaceWith( api.jscodeshift.stringLiteral( code ) );
+				const id = msg2id( node.value.value );
+				if ( id ) {
+					const code = prefix + id;
+					api.jscodeshift( node )
+						.replaceWith( api.jscodeshift.stringLiteral( code ) );
+				}
 			}
 
 		})
