@@ -78,19 +78,32 @@ function transformer( fileInfo, api ) {
 							node.value.arguments[ 0 ].value === '@stdlib/error-tools-fmtprodmsg';
 					} ) ) {
 						console.log( 'Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...' );
-						api.jscodeshift( fileInfo.source )
+						const requires = api.jscodeshift( fileInfo.source )
 							.find( api.jscodeshift.CallExpression, {
 								callee: {
 									name: 'require',
 									type: 'Identifier'
 								}
-							})
-							.insertAfter( api.jscodeshift.callExpression(
-								api.jscodeshift.identifier( 'require' ),
-								[
-									api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
-								]
-							) );
+							});
+						console.log( 'Number of existing requires: %d', requires.size() );
+						if ( requires.size() > 0 ) {
+							requires.insertAfter( api.jscodeshift.callExpression(
+									api.jscodeshift.identifier( 'require' ),
+									[
+										api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
+									]
+								) );
+						} else {
+							api.jscodeshift( fileInfo.source )
+								.find( api.jscodeshift.Program )
+								.get( 0 )
+								.insertBefore( api.jscodeshift.callExpression(
+									api.jscodeshift.identifier( 'require' ),
+									[
+										api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' )
+									]
+								) );
+						}
 					}
 				}
 			}
