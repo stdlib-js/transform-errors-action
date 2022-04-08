@@ -20,7 +20,7 @@ function transformer( fileInfo, api ) {
 		.jscodeshift( fileInfo.source )
 		.find( api.jscodeshift.Literal )
 		.forEach( function onStringLiteral( node ) {
-			console.log( 'String: '+node );
+			console.log( 'String: '+JSON.stringify( node ) );
 			if ( node.value === '@stdlib/string-format' ) {
 				api.jscodeshift( node )
 					.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
