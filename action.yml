@@ -2,8 +2,6 @@ name: Transform Error Messages
 description: Transform full-length error messages to shortened error messages for production.
 author: Philipp Burckhardt <pburckhardt@outlook.com>
 
-inputs:
-
 runs:
   using: "composite"
   steps:
