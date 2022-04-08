@@ -22,6 +22,7 @@ function transformer( fileInfo, api ) {
 		.forEach( function onStringLiteral( node ) {
 			console.log( node.value );
 			if ( node.value === '@stdlib/string-format' ) {
+				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
 				api.jscodeshift( node )
 					.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
 			}
