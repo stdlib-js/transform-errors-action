@@ -97,8 +97,12 @@ function transformer( fileInfo, api ) {
 						
 						// Add `var format = require( '@stdlib/error-tools-fmtprodmsg' );` as first element of `body`...
 						api.jscodeshift( fileInfo.source )
-							.find( api.jscodeshift.Program )
-							.get( 'body', 0 )
+							.find( api.jscodeshift.ExpressionStatement, {
+								expression: {
+									type: 'Literal',
+									value: 'use strict'
+								}
+							})
 							.insertAfter( formatRequire );
 					}
 				}
