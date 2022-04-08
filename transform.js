@@ -8,7 +8,7 @@ const msg2id = require( '@stdlib/error-tools-msg2id' );
 // VARIABLES //
 
 const pkg = '@stdlib/' + github.context.payload.repository.name;
-const id = pkg2id( pkg );
+const prefix = pkg2id( pkg );
 
 
 // MAIN //
@@ -25,7 +25,18 @@ function transformer( fileInfo, api ) {
 				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
 				api.jscodeshift( node )
 					.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
+			} 
+			// If the string literal is inside a ThrowStatement, replace it with error code:
+			else if ( 
+				node.parent.type === 'ThrowStatement' ||
+				node.parent.parent.type === 'ThrowStatement' 
+			) {
+				console.log( 'Replacing string literal with error code...' );
+				const code = prefix + msg2id( node.value.value );
+				api.jscodeshift( node )
+					.replaceWith( api.jscodeshift.stringLiteral( code ) );
 			}
+
 		})
 		.toSource();
 }
