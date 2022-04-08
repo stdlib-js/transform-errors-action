@@ -15,6 +15,7 @@ const id = pkg2id( pkg );
 
 function transformer( fileInfo, api ) {
 	console.log( 'Transforming file: %s', fileInfo.path );
+	console.log( Object.keys( api.jscodeshift ) );
 	return api
 		.jscodeshift( fileInfo.source )
 		.find( api.jscodeshift.Literal )
