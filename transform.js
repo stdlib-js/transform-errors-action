@@ -27,6 +27,10 @@ function transformer( fileInfo, api ) {
 				.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
 			} 
 			// If the string literal is inside a ThrowStatement, replace it with error code:
+			console.log( 'Ancestors: ' );
+			console.log( node.parent.value );
+			console.log( node.parent.parent.value );
+			console.log( node.parent.parent.parent.value );
 			if ( 
 				node.parent.value.type === 'ThrowStatement' ||
 				node.parent.parent.value.type === 'ThrowStatement' 
