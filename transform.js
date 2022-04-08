@@ -15,13 +15,13 @@ const id = pkg2id( pkg );
 
 function transformer( fileInfo, api ) {
 	console.log( 'Transforming file: %s', fileInfo.path );
-	console.log( Object.keys( api.jscodeshift ) );
+	console.log( api.jscodeshift.stringLiteral );
 	return api
 		.jscodeshift( fileInfo.source )
 		.find( api.jscodeshift.Literal )
 		.forEach( function onStringLiteral( node ) {
 			console.log( node.value );
-			if ( node.value === '@stdlib/string-format' ) {
+			if ( node.value.value === '@stdlib/string-format' ) {
 				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
 				api.jscodeshift( node )
 					.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
