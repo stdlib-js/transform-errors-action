@@ -20,14 +20,14 @@ function transformer( fileInfo, api ) {
 		.jscodeshift( fileInfo.source )
 		.find( api.jscodeshift.Literal )
 		.forEach( function onStringLiteral( node ) {
-			console.log( node.value );
+			console.log( node.parent );
 			if ( node.value.value === '@stdlib/string-format' ) {
 				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
 				api.jscodeshift( node )
-					.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
+				.replaceWith( api.jscodeshift.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
 			} 
 			// If the string literal is inside a ThrowStatement, replace it with error code:
-			else if ( 
+			if ( 
 				node.parent.type === 'ThrowStatement' ||
 				node.parent.parent.type === 'ThrowStatement' 
 			) {
