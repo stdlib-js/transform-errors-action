@@ -9,7 +9,6 @@ const msg2id = require( '@stdlib/error-tools-msg2id' );
 
 const pkg = '@stdlib/' + github.context.payload.repository.name;
 const id = pkg2id( pkg );
-console.log( 'Package identifier: %s', id );
 
 
 // MAIN //
@@ -18,8 +17,8 @@ function transformer( fileInfo, api ) {
 	console.log( 'Transforming file: %s', fileInfo.path );
 	return api
 		.jscodeshift( fileInfo.source )
-		.find( api.jscodeshift.String )
-		.forEach( function onString( node ) {
+		.find( api.jscodeshift.Literal )
+		.forEach( function onStringLiteral( node ) {
 			console.log( 'String: '+node );
 			if ( node.value === '@stdlib/string-format' ) {
 				api.jscodeshift( node )
