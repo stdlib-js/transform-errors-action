@@ -28,8 +28,8 @@ function transformer( fileInfo, api ) {
 			} 
 			// If the string literal is inside a ThrowStatement, replace it with error code:
 			if ( 
-				node.parent.type === 'ThrowStatement' ||
-				node.parent.parent.type === 'ThrowStatement' 
+				node.parent.value.type === 'ThrowStatement' ||
+				node.parent.parent.value.type === 'ThrowStatement' 
 			) {
 				console.log( 'Replacing string literal with error code...' );
 				const code = prefix + msg2id( node.value.value );
