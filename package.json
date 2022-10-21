@@ -22,16 +22,16 @@
   },
   "homepage": "https://github.com/stdlib-js/transform-errors-action#readme",
   "dependencies": {
-    "@actions/github": "^5.0.1",
+    "@actions/github": "^5.1.1",
     "@stdlib/error-tools-msg2id": "^0.0.1",
     "@stdlib/error-tools-pkg2id": "^0.0.1"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.30.0",
-    "@typescript-eslint/parser": "^5.30.0",
-    "eslint": "^8.18.0",
+    "@types/node": "^18.11.3",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "@typescript-eslint/parser": "^5.40.1",
+    "eslint": "^8.25.0",
     "husky": "^8.0.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.4"
   }
 }
