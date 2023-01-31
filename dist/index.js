@@ -37,6 +37,13 @@ const ERROR_NAMES = [
     'URIError'
 ];
 // MAIN //
+/**
+* Transforms a file.
+*
+* @param fileInfo - file information
+* @param api - JSCodeshift API
+* @returns transformed file
+*/
 function transformer(fileInfo, api) {
     const j = api.jscodeshift;
     const root = j(fileInfo.source);

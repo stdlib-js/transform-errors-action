@@ -40,6 +40,13 @@ const ERROR_NAMES = [
 
 // MAIN //
 
+/**
+* Transforms a file.
+*
+* @param fileInfo - file information
+* @param api - JSCodeshift API
+* @returns transformed file
+*/
 function transformer( fileInfo, api ) {
 	const j = api.jscodeshift;
 	const root = j( fileInfo.source );
@@ -52,9 +59,9 @@ function transformer( fileInfo, api ) {
 				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
 				j( node )
 				.replaceWith( j.stringLiteral( '@stdlib/error-tools-fmtprodmsg' ) );
-			} 
+			}
 			// If the string literal is inside a NewExpression for an error, replace the string literal with the error message...
-			else if ( 
+			else if (
 				// Case: new Error( format( '...', ... ) )
 				( node.parent.parent.value.type === 'NewExpression' &&
 				ERROR_NAMES.includes( node.parent.parent.value.callee.name ) )
@@ -66,7 +73,7 @@ function transformer( fileInfo, api ) {
 					j( node )
 						.replaceWith( j.stringLiteral( code ) );
 				}
-			} 
+			}
 			else if (
 				// Case: new Error( '...' )
 				( node.parent.value.type === 'NewExpression' &&
@@ -76,7 +83,7 @@ function transformer( fileInfo, api ) {
 				if ( id ) {
 					const code = prefix + id;
 					console.log( 'Replacing string literal "'+node.value.value+'" with error code "'+code+'"...' );
-					
+
 					// Replace with call to `format` with the error code...
 					const replacement = j.callExpression(
 						j.identifier( 'format' ),
