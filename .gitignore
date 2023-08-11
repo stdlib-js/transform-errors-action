@@ -19,6 +19,7 @@
 # Files #
 #########
 package.json.copy
+package-lock.json
 
 # Directories #
 ###############
