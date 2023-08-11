@@ -5,9 +5,9 @@ author: Philipp Burckhardt <pburckhardt@outlook.com>
 runs:
   using: "composite"
   steps:
-    - name: Install dependencies
+    - name: Install dependencies of this action
       run: |
-        npm install
+        cd ${{ github.action_path }} && npm install
       shell: bash
     - name: Install `jscodeshift` via npm
       run: |
