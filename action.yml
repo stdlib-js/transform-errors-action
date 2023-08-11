@@ -5,6 +5,10 @@ author: Philipp Burckhardt <pburckhardt@outlook.com>
 runs:
   using: "composite"
   steps:
+    - name: Install dependencies
+      run: |
+        npm install
+      shell: bash
     - name: Install `jscodeshift` via npm
       run: |
         npm install -g jscodeshift
