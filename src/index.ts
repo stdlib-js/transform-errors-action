@@ -18,6 +18,7 @@
 
 // MODULES //
 
+import { FileInfo, API, CallExpression, ASTPath, Literal } from 'jscodeshift';
 import { context } from '@actions/github';
 import pkg2id from '@stdlib/error-tools-pkg2id';
 import msg2id from '@stdlib/error-tools-msg2id';
@@ -25,7 +26,11 @@ import msg2id from '@stdlib/error-tools-msg2id';
 
 // VARIABLES //
 
-const pkg = '@stdlib/' + context.payload.repository.name;
+if ( !context.payload.repository ) {
+	throw new Error( 'Repository is undefined.' );
+}
+const repo = context.payload.repository.name;
+const pkg = '@stdlib/' + repo;
 const prefix = pkg2id( pkg );
 console.log( 'Replacing error messages with error codes for package %s (id: %s).', pkg, prefix );
 const ERROR_NAMES = [
@@ -48,14 +53,14 @@ const ERROR_NAMES = [
 * @param api - JSCodeshift API
 * @returns transformed file
 */
-function transformer( fileInfo, api ) {
+function transformer( fileInfo: FileInfo, api: API ) {
 	const j = api.jscodeshift;
 	const root = j( fileInfo.source );
 
 	console.log( 'Transforming file: %s', fileInfo.path );
 	return root
 		.find( j.Literal )
-		.forEach( function onStringLiteral( node ) {
+		.forEach( function onStringLiteral( node: ASTPath<Literal> ) {
 			if ( node.value.value === '@stdlib/string-format' ) {
 				console.log( 'Replacing `@stdlib/string-format` with `@stdlib/error-tools-fmtprodmsg`...' );
 				j( node )
@@ -67,7 +72,7 @@ function transformer( fileInfo, api ) {
 				( node.parent.parent.value.type === 'NewExpression' &&
 				ERROR_NAMES.includes( node.parent.parent.value.callee.name ) )
 			) {
-				const id = msg2id( node.value.value );
+				const id = msg2id( String( node.value.value ) );
 				if ( id ) {
 					const code = prefix + id;
 					console.log( 'Replacing format string "'+node.value.value+'" with error code "'+code+'"...' );
@@ -80,7 +85,7 @@ function transformer( fileInfo, api ) {
 				( node.parent.value.type === 'NewExpression' &&
 				ERROR_NAMES.includes( node.parent.value.callee.name ) )
 			) {
-				const id = msg2id( node.value.value );
+				const id = msg2id( String( node.value.value ) );
 				if ( id ) {
 					const code = prefix + id;
 					console.log( 'Replacing string literal "'+node.value.value+'" with error code "'+code+'"...' );
@@ -103,9 +108,16 @@ function transformer( fileInfo, api ) {
 					});
 					const nRequires = requires.size();
 					console.log( 'Found ' + nRequires + ' `require` calls...' );
-					if ( !requires.some( function hasRequire( node ) {
-						return node.value.callee.name === 'require' &&
-							node.value.arguments[ 0 ].value === '@stdlib/error-tools-fmtprodmsg';
+					if ( !requires.some( function hasRequire( node: ASTPath<CallExpression> ) {
+						if ( 
+							node.value.callee.type === 'Identifier' &&
+							node.value.arguments.length > 0 &&
+							node.value.arguments[0].type === 'Literal' &&
+							node.value.callee.name === 'require'
+						) {
+							return node.value.arguments[0].value === '@stdlib/error-tools-fmtprodmsg';
+						}
+						return false;
 					} ) ) {
 						const formatRequire = j.variableDeclaration(
 							'var',

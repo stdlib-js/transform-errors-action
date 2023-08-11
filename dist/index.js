@@ -20,12 +20,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// MODULES //
 const github_1 = require("@actions/github");
 const error_tools_pkg2id_1 = __importDefault(require("@stdlib/error-tools-pkg2id"));
 const error_tools_msg2id_1 = __importDefault(require("@stdlib/error-tools-msg2id"));
 // VARIABLES //
-const pkg = '@stdlib/' + github_1.context.payload.repository.name;
+if (!github_1.context.payload.repository) {
+    throw new Error('Repository is undefined.');
+}
+const repo = github_1.context.payload.repository.name;
+const pkg = '@stdlib/' + repo;
 const prefix = (0, error_tools_pkg2id_1.default)(pkg);
 console.log('Replacing error messages with error codes for package %s (id: %s).', pkg, prefix);
 const ERROR_NAMES = [
@@ -62,7 +65,7 @@ function transformer(fileInfo, api) {
         // Case: new Error( format( '...', ... ) )
         (node.parent.parent.value.type === 'NewExpression' &&
             ERROR_NAMES.includes(node.parent.parent.value.callee.name))) {
-            const id = (0, error_tools_msg2id_1.default)(node.value.value);
+            const id = (0, error_tools_msg2id_1.default)(String(node.value.value));
             if (id) {
                 const code = prefix + id;
                 console.log('Replacing format string "' + node.value.value + '" with error code "' + code + '"...');
@@ -74,7 +77,7 @@ function transformer(fileInfo, api) {
         // Case: new Error( '...' )
         (node.parent.value.type === 'NewExpression' &&
             ERROR_NAMES.includes(node.parent.value.callee.name))) {
-            const id = (0, error_tools_msg2id_1.default)(node.value.value);
+            const id = (0, error_tools_msg2id_1.default)(String(node.value.value));
             if (id) {
                 const code = prefix + id;
                 console.log('Replacing string literal "' + node.value.value + '" with error code "' + code + '"...');
@@ -93,8 +96,13 @@ function transformer(fileInfo, api) {
                 const nRequires = requires.size();
                 console.log('Found ' + nRequires + ' `require` calls...');
                 if (!requires.some(function hasRequire(node) {
-                    return node.value.callee.name === 'require' &&
-                        node.value.arguments[0].value === '@stdlib/error-tools-fmtprodmsg';
+                    if (node.value.callee.type === 'Identifier' &&
+                        node.value.arguments.length > 0 &&
+                        node.value.arguments[0].type === 'Literal' &&
+                        node.value.callee.name === 'require') {
+                        return node.value.arguments[0].value === '@stdlib/error-tools-fmtprodmsg';
+                    }
+                    return false;
                 })) {
                     const formatRequire = j.variableDeclaration('var', [
                         j.variableDeclarator(j.identifier('format'), j.callExpression(j.identifier('require'), [
