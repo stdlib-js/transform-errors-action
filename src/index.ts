@@ -27,6 +27,7 @@ import msg2id from '@stdlib/error-tools-msg2id';
 
 const pkg = '@stdlib/' + context.payload.repository.name;
 const prefix = pkg2id( pkg );
+console.log( 'Replacing error messages with error codes for package %s (id: %s).', pkg, prefix );
 const ERROR_NAMES = [
 	'Error',
 	'AssertionError',

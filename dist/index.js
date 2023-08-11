@@ -27,6 +27,7 @@ const error_tools_msg2id_1 = __importDefault(require("@stdlib/error-tools-msg2id
 // VARIABLES //
 const pkg = '@stdlib/' + github_1.context.payload.repository.name;
 const prefix = (0, error_tools_pkg2id_1.default)(pkg);
+console.log('Replacing error messages with error codes for package %s (id: %s).', pkg, prefix);
 const ERROR_NAMES = [
     'Error',
     'AssertionError',
