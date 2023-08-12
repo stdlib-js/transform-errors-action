@@ -27,6 +27,7 @@ build/
 downloads/
 reports/
 tmp/
+node_modules
 
 # Compiled source #
 ###################

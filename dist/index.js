@@ -115,7 +115,12 @@ function transformer(fileInfo, api) {
             }
         }
     })
-        .toSource();
+        .toSource({
+        'quote': 'single',
+        'lineTerminator': '\n',
+        'reuseWhitespace': false,
+        'useTabs': true
+    });
 }
 // EXPORTS //
 exports.default = transformer;

@@ -139,7 +139,12 @@ function transformer( fileInfo: FileInfo, api: API ) {
 				}
 			}
 		})
-		.toSource();
+		.toSource({
+			'quote': 'single',
+			'lineTerminator': '\n',
+			'reuseWhitespace': false,
+			'useTabs': true
+		});
 }
 
 
