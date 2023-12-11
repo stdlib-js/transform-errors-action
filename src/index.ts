@@ -108,17 +108,7 @@ function transformer( fileInfo: FileInfo, api: API ) {
 					});
 					const nRequires = requires.size();
 					console.log( 'Found ' + nRequires + ' `require` calls...' );
-					if ( !requires.some( function hasRequire( node: ASTPath<CallExpression> ) {
-						if ( 
-							node.value.callee.type === 'Identifier' &&
-							node.value.arguments.length > 0 &&
-							node.value.arguments[0].type === 'Literal' &&
-							node.value.callee.name === 'require'
-						) {
-							return node.value.arguments[0].value === '@stdlib/error-tools-fmtprodmsg';
-						}
-						return false;
-					} ) ) {
+					if ( !requires.some( hasRequire ) ) {
 						const formatRequire = j.variableDeclaration(
 							'var',
 							[
@@ -145,6 +135,26 @@ function transformer( fileInfo: FileInfo, api: API ) {
 			'reuseWhitespace': false,
 			'useTabs': true
 		});
+
+	/**
+	* Tests whether a path is a require call for `@stdlib/error-tools-fmtprodmsg` or `@stdlib/string-format`.
+	*
+	* @private
+	* @param path - AST node path
+	* @returns boolean indicating whether a path is a require call for `@stdlib/error-tools-fmtprodmsg` or `@stdlib/string-format`
+	*/
+	function hasRequire( node: ASTPath<CallExpression> ) {
+		if (
+			node.value.callee.type === 'Identifier' &&
+			node.value.arguments.length > 0 &&
+			node.value.arguments[0].type === 'Literal' &&
+			node.value.callee.name === 'require'
+		) {
+			const value = node.value.arguments[0].value;
+			return value === '@stdlib/error-tools-fmtprodmsg' || value === '@stdlib/string-format';
+		}
+		return false;
+	}
 }
 
 
