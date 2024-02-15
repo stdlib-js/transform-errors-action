@@ -122,7 +122,7 @@ function transformer(fileInfo, api) {
     */
     function hasRequire(node) {
         console.log('Checking require call...');
-        console.log(JSON.stringify(node.value, null, 2));
+        console.log(node.value);
         if (node.value.callee.type === 'Identifier' &&
             node.value.arguments.length > 0 &&
             node.value.arguments[0].type === 'Literal' &&
