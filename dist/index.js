@@ -121,15 +121,11 @@ function transformer(fileInfo, api) {
     * @returns boolean indicating whether a path is a require call for `@stdlib/error-tools-fmtprodmsg` or `@stdlib/string-format`
     */
     function hasRequire(node) {
-        console.log('Checking require call...');
-        console.log(node.value);
         if (node.value.callee.type === 'Identifier' &&
             node.value.arguments.length > 0 &&
-            node.value.arguments[0].type === 'Literal' &&
+            (node.value.arguments[0].type === 'Literal' || node.value.arguments[0].type === 'StringLiteral') &&
             node.value.callee.name === 'require') {
             const value = node.value.arguments[0].value;
-			console.log('Bool');
-			console.log( value === '@stdlib/error-tools-fmtprodmsg' || value === '@stdlib/string-format' );
             return value === '@stdlib/error-tools-fmtprodmsg' || value === '@stdlib/string-format';
         }
         return false;
