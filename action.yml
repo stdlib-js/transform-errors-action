@@ -11,7 +11,7 @@ runs:
       shell: bash
     - name: Install `jscodeshift` via npm
       run: |
-        npm install -g jscodeshift
+        npm install -g jscodeshift@0.15.1
       shell: bash
     - name: Transform all *.js files with jscodeshift
       run: |
