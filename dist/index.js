@@ -128,6 +128,8 @@ function transformer(fileInfo, api) {
             node.value.arguments[0].type === 'Literal' &&
             node.value.callee.name === 'require') {
             const value = node.value.arguments[0].value;
+			console.log('Bool');
+			console.log( value === '@stdlib/error-tools-fmtprodmsg' || value === '@stdlib/string-format' );
             return value === '@stdlib/error-tools-fmtprodmsg' || value === '@stdlib/string-format';
         }
         return false;
