@@ -30,10 +30,20 @@ jobs:
   transform:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # Checkout the repository:
+      - name: 'Checkout repository'
+        # Pin action to full length commit SHA
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+
+      # Install Node.js:
+      - name: 'Install Node.js'
+        # Pin action to full length commit SHA
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
         with:
-          repository: 'stdlib-js/string-snakecase'
+          node-version: 20
+        timeout-minutes: 5
+
+      # Transform error messages:
       - name: Transform Error Messages
         id: transform-error-messages
         uses: stdlib-js/transform-errors-action@main
