@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext .ts",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
