@@ -144,6 +144,8 @@ function transformer( fileInfo: FileInfo, api: API ) {
 	* @returns boolean indicating whether a path is a require call for `@stdlib/error-tools-fmtprodmsg` or `@stdlib/string-format`
 	*/
 	function hasRequire( node: ASTPath<CallExpression> ) {
+		console.log( 'Checking require call...' );
+		console.log( JSON.stringify( node.value, null, 2 ) );
 		if (
 			node.value.callee.type === 'Identifier' &&
 			node.value.arguments.length > 0 &&
