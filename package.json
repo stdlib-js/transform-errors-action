@@ -1,6 +1,6 @@
 {
   "name": "transform-errors-action",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "GitHub action to transform full-length error messages to shortened error messages for production.",
   "main": "dist/index.js",
   "scripts": {
