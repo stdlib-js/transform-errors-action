@@ -22,9 +22,7 @@
   },
   "homepage": "https://github.com/stdlib-js/transform-errors-action#readme",
   "dependencies": {
-    "@actions/github": "5.1.1",
-    "@stdlib/error-tools-msg2id": "^0.2.3",
-    "@stdlib/error-tools-pkg2id": "^0.4.1"
+    "@actions/github": "5.1.1"
   },
   "devDependencies": {
     "@types/jscodeshift": "^0.11.11",
