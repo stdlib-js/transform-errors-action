@@ -9,13 +9,17 @@ runs:
       run: |
         cd ${{ github.action_path }} && npm install
       shell: bash
+    - name: Install latest error databases from GitHub
+      run: |
+        cd ${{ github.action_path }} && npm install --no-save stdlib-js/error-tools-pkg2id stdlib-js/error-tools-msg2id
+      shell: bash
     - name: Install `jscodeshift` via npm
       run: |
         npm install -g jscodeshift@0.15.1
       shell: bash
     - name: Transform all *.js files with jscodeshift
       run: |
-        jscodeshift ./lib/**/*.js ./lib/*.js -t ${{ github.action_path }}/dist/index.js
+        jscodeshift --fail-on-error ./lib/**/*.js ./lib/*.js -t ${{ github.action_path }}/dist/index.js
       shell: bash
 
 branding:
