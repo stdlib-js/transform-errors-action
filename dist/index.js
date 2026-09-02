@@ -51,6 +51,9 @@ const ERROR_NAMES = [
 function transformer(fileInfo, api) {
     const j = api.jscodeshift;
     const root = j(fileInfo.source);
+    if (!prefix) {
+        throw new Error('Unable to resolve a package identifier for `' + pkg + '`. The error databases are out-of-date or the package has not yet been added to the databases. Refusing to emit invalid error codes.');
+    }
     console.log('Transforming file: %s', fileInfo.path);
     return root
         .find(j.Literal)
@@ -64,46 +67,51 @@ function transformer(fileInfo, api) {
         else if (
         // Case: new Error( format( '...', ... ) )
         (node.parent.parent.value.type === 'NewExpression' &&
-            ERROR_NAMES.includes(node.parent.parent.value.callee.name))) {
+            ERROR_NAMES.includes(node.parent.parent.value.callee.name) &&
+            node.parent.value.type === 'CallExpression' &&
+            node.parent.value.arguments[0] === node.value)) {
             const id = (0, error_tools_msg2id_1.default)(String(node.value.value));
-            if (id) {
-                const code = prefix + id;
-                console.log('Replacing format string "' + node.value.value + '" with error code "' + code + '"...');
-                j(node)
-                    .replaceWith(j.stringLiteral(code));
+            if (!id) {
+                throw new Error('Unable to resolve an error code for error message: "' + node.value.value + '". Add the message to the error databases. Refusing to emit invalid error codes.');
             }
+            const code = prefix + id;
+            console.log('Replacing format string "' + node.value.value + '" with error code "' + code + '"...');
+            j(node)
+                .replaceWith(j.stringLiteral(code));
         }
         else if (
         // Case: new Error( '...' )
         (node.parent.value.type === 'NewExpression' &&
-            ERROR_NAMES.includes(node.parent.value.callee.name))) {
+            ERROR_NAMES.includes(node.parent.value.callee.name) &&
+            node.parent.value.arguments[0] === node.value)) {
             const id = (0, error_tools_msg2id_1.default)(String(node.value.value));
-            if (id) {
-                const code = prefix + id;
-                console.log('Replacing string literal "' + node.value.value + '" with error code "' + code + '"...');
-                // Replace with call to `format` with the error code...
-                const replacement = j.callExpression(j.identifier('format'), [
-                    j.stringLiteral(code)
-                ]);
-                j(node).replaceWith(replacement);
-                // Add `require` call to `@stdlib/error-tools-fmtprodmsg` if not already present...
-                const requires = root.find(j.CallExpression, {
-                    callee: {
-                        name: 'require',
-                        type: 'Identifier'
-                    }
-                });
-                const nRequires = requires.size();
-                console.log('Found ' + nRequires + ' `require` calls...');
-                if (!requires.some(hasRequire)) {
-                    const formatRequire = j.variableDeclaration('var', [
-                        j.variableDeclarator(j.identifier('format'), j.callExpression(j.identifier('require'), [
-                            j.stringLiteral('@stdlib/error-tools-fmtprodmsg')
-                        ]))
-                    ]);
-                    console.log('Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...');
-                    j(root.find(j.Declaration).at(0).get()).insertBefore(formatRequire);
+            if (!id) {
+                throw new Error('Unable to resolve an error code for error message: "' + node.value.value + '". Add the message to the error databases. Refusing to emit invalid error codes.');
+            }
+            const code = prefix + id;
+            console.log('Replacing string literal "' + node.value.value + '" with error code "' + code + '"...');
+            // Replace with call to `format` with the error code...
+            const replacement = j.callExpression(j.identifier('format'), [
+                j.stringLiteral(code)
+            ]);
+            j(node).replaceWith(replacement);
+            // Add `require` call to `@stdlib/error-tools-fmtprodmsg` if not already present...
+            const requires = root.find(j.CallExpression, {
+                callee: {
+                    name: 'require',
+                    type: 'Identifier'
                 }
+            });
+            const nRequires = requires.size();
+            console.log('Found ' + nRequires + ' `require` calls...');
+            if (!requires.some(hasRequire)) {
+                const formatRequire = j.variableDeclaration('var', [
+                    j.variableDeclarator(j.identifier('format'), j.callExpression(j.identifier('require'), [
+                        j.stringLiteral('@stdlib/error-tools-fmtprodmsg')
+                    ]))
+                ]);
+                console.log('Adding `require` call to `@stdlib/error-tools-fmtprodmsg`...');
+                j(root.find(j.Declaration).at(0).get()).insertBefore(formatRequire);
             }
         }
     })
